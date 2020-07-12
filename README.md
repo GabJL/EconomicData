@@ -49,8 +49,8 @@ Undocumented.
 To get the for some series:
 * Search the series in `newURL_analysis.txt` (this is the result of `textURL.py`).
 * You have to include in `series.json` a new element with three values:
-* * `name`: This is the name of the series (This is only information for the user)
-* * `code`: This is the number which appears in the line `Searching in X`
-* * `text`: This is the text removing the name of the location
+  * `name`: This is the name of the series (This is only information for the user)
+  * `code`: This is the number which appears in the line `Searching in X`
+  * `text`: This is the text removing the name of the location
 
 
