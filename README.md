@@ -47,7 +47,7 @@ Undocumented.
 ## How to get a new series
 
 To get the for some series:
-* Search the series in `newURL_analysis.txt` (this is the result of `textURL.py`).
+* Search the series in `URL_analysis.txt` (this is the result of `textURL.py`).
 * You have to include in `series.json` a new element with three values:
   * `name`: This is the name of the series (This is only information for the user)
   * `code`: This is the number which appears in the line `Searching in X`
