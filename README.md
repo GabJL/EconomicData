@@ -2,7 +2,7 @@
 
 This project allows to download information from INE and update it.
 
-## Database structure:
+## Database structure (Original):
 
 **TL;DR:** *Given a place from `locations` (for example `Málaga`) and a data serie from `series` (for example 
 `male unemployment percentage`), you can found the data about it in `values` using the `id` found in `codes`. Also `codes`
@@ -18,6 +18,15 @@ gets those data). It also includes an `id` and a description `text`
 * `values` table: Actual `value`s for a pair <place (from `locations`), serie (frome `series`)>. These data are annotated 
 with their `year` and `period` (the meaning of the period value can be a month, a semester, a quarter...).
 
+## Reduced Database structure:
+
+FILE: `db-reduced.db`
+
+A single table with clean data:
+* Only series with data for all locations
+* Complete and consecutive years from 2003 to 2012
+* 12 values per year
+
 ## Main Python Files
 
 * `database.py`: This file contains the python declaration for the database (ORM system using `SQLAlchemy`). The method 
@@ -29,6 +38,7 @@ with their `year` and `period` (the meaning of the period value can be a month, 
 * `test.py`: Testing some operations over the database.
 * `testURL.py`: Get all series in INE database
 * `newSerie.py`: From a previous analysis (reduced one) generates the `series.json`to be downloaded.
+* `cleanData.py`: Generate a clean version of the data (`db-reduced.db`)
 
 ## Other Files:
 
