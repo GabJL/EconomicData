@@ -23,9 +23,9 @@ with their `year` and `period` (the meaning of the period value can be a month, 
 FILE: `db-reduced.db`
 
 A single table with clean data:
-* Only series with data for all locations
-* Complete and consecutive years from 2003 to 2012
-* 12 values per year
+* Only series with data for all locations (33 series and 52 cities)
+* Complete and consecutive years from 2003 to 2017 (15 years)
+* 12 values per year (33 x 52 x 15 x 12 = 308 880 values)
 
 ## Main Python Files
 

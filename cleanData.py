@@ -150,8 +150,14 @@ def generate_values(amount, previous, last):
 
 def create_new_values(years, locations, session, miny, maxy):
     s2 = get_new_database()
+    s_counter = 0
     for s in years:
+        print(f"Serie: {s_counter}")
+        s_counter += 1
+        l_counter = 0
         for l in locations:
+            print(f"\tLocation {l_counter}")
+            l_counter += 1
             code = session.query(Code).filter(Code.serie_id == s["serie"].id, Code.location_id == l.id).first()
             previous_row = session.query(Value).filter(Value.code_id == code.id, Value.year == miny-1).order_by(Value.period.desc()).first()
             previous =  previous_row.value
