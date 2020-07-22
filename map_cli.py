@@ -138,7 +138,7 @@ def create_image(norm, cmap, data_lst, args, vmin, vmax):
     define_ticks(c_bar, data_lst, vmin, vmax)
 
     if args["show-date"]:
-        month = ["Jan", "Feb", "Mar", "Apr", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
         textstr = month[int(args["period"])]+"-"+str(args["year"])
         props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
         ax.text(0.75, 0.1, textstr, transform=ax.transAxes, fontsize=14,
