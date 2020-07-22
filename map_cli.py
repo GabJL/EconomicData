@@ -5,6 +5,7 @@ import os
 import re
 import sys
 import xml.etree.ElementTree as ET
+import logging
 
 import matplotlib.cm
 import matplotlib.pyplot as plt
@@ -136,6 +137,13 @@ def create_image(norm, cmap, data_lst, args, vmin, vmax):
     c_bar = plt.colorbar(mapper, ax=cb_axes, shrink=0.4)
     define_ticks(c_bar, data_lst, vmin, vmax)
 
+    if args["show-date"]:
+        month = ["Jan", "Feb", "Mar", "Apr", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        textstr = month[int(args["period"])]+"-"+str(args["year"])
+        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+        ax.text(0.75, 0.1, textstr, transform=ax.transAxes, fontsize=14,
+                verticalalignment='top', bbox=props)
+
     plt.savefig(args["output"], bbox_inches='tight', dpi=300)
     os.remove("_map.svg")
     os.remove("_map.png")
@@ -161,6 +169,7 @@ def show_help():
     print("""Options:
     -h | --help \t\t\t This help
     -g | --global \t\t\t Global Min/Max values of value [False by default]
+    -d | --show-date \t\t\t Show the date in the image [False by default]
     -y | --year <year> \t\t\t From 2003 to 2017 [2010 by default]
     -p | --period <period> \t\t From 0 to 11
     -s | --series <series name> \t [Total. Total de empresas. Total CNAE. Empresas. by default]
@@ -176,10 +185,11 @@ def parse_args(argv):
         "period": 0,
         "series": 'Total. Total de empresas. Total CNAE. Empresas.',
         "output": "output.png",
-        "global": False
+        "global": False,
+        "show-date": False
     }
     try:
-        opts, args = getopt.getopt(argv, "hy:p:s:o:", ["year=", "period=", "series=", "output=", "help"])
+        opts, args = getopt.getopt(argv, "hy:p:s:o:dg", ["year=", "period=", "series=", "output=", "help"])
     except getopt.GetoptError:
         show_help()
         sys.exit(2)
@@ -197,9 +207,12 @@ def parse_args(argv):
             arguments["output"] = arg
         elif opt in ["-g", "--global"]:
             arguments["global"] = True
+        elif opt in ["-d", "--show-date"]:
+            arguments["show-date"] = True
     return arguments
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.ERROR)
     args = parse_args(sys.argv[1:])
     main(args)
