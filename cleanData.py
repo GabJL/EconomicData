@@ -27,6 +27,13 @@ def get_new_database():
     return session
 
 
+def get_reduced_database():
+    engine = sa.create_engine('sqlite:///db-reduced.db', encoding='latin1', echo=False)
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    return session
+
+
 def get_amount_locations(session):
     return session.query(Location).count()
 

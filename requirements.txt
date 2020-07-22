@@ -1,4 +1,8 @@
+svglib
+reportlab
+matplotlib
 sqlalchemy
 matplot
 numpy
 pandas
+cairosvg
