@@ -2,6 +2,11 @@
 
 This project allows to download information from INE and update it.
 
+## Tools:
+
+* `map_cli.py`: generate a PNG file with a map with some data (`python map_cli.py --help` for all the options).
+* `map_gif.py`: generate a GIF file with a map with some data (`python map_gif.py --help` for all the options).
+
 ## Database structure (Original):
 
 **TL;DR:** *Given a place from `locations` (for example `Málaga`) and a data serie from `series` (for example 
