@@ -6,3 +6,4 @@ matplot
 numpy
 pandas
 imageio
+pygifsicle
