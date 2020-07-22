@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import Normalize
 from reportlab.graphics import renderPM
 from svglib.svglib import svg2rlg
+from sqlalchemy import func
 
 from cleanData import get_reduced_database, Data
 
@@ -51,6 +52,15 @@ def get_data(arguments):
     return data
 
 
+def get_min_max_values(arguments):
+    session = get_reduced_database()
+    res = session.query(func.max(Data.value).label("max_value"),
+                        func.min(Data.value).label("min_value"), ). \
+        filter(Data.serie_name == arguments["series"]). \
+        one()
+    return res.min_value, res.max_value
+
+
 def tuple2color(t):
     color = "#"
     for i in range(3):
@@ -67,7 +77,6 @@ def colorize_map(names, colors):
     for child in root:
         if child.attrib["id"] in names:
             i = names.index(child.attrib["id"])
-            print(f"{i} -> {child.attrib['id']} - {tuple2color(colors[i])}")
             t = child.attrib["style"]
             p = re.compile(r"fill:(.*?);")
             tb = p.sub(f"fill:{tuple2color(colors[i])};", t)
@@ -89,9 +98,9 @@ def scale(drawing):
     return drawing
 
 
-def define_ticks(cbar, data_lst):
-    m0 = int(min(data_lst))  # colorbar min value
-    m4 = int(max(data_lst))  # colorbar max value
+def define_ticks(cbar, data_lst, vmin, vmax):
+    m0 = int(vmin)  # colorbar min value
+    m4 = int(vmax)  # colorbar max value
     m1 = int(1 * (m4 - m0) / 4.0 + m0)  # colorbar mid value 1
     m2 = int(2 * (m4 - m0) / 4.0 + m0)  # colorbar mid value 2
     m3 = int(3 * (m4 - m0) / 4.0 + m0)  # colorbar mid value 3
@@ -111,7 +120,7 @@ def define_ticks(cbar, data_lst):
     cbar.set_ticklabels(labels2)
 
 
-def create_image(norm, cmap, data_lst, args):
+def create_image(norm, cmap, data_lst, args, vmin, vmax):
     drawing = svg2rlg("_map.svg")
     drawing = scale(drawing)
     renderPM.drawToFile(drawing, "_map.png", fmt="PNG")
@@ -125,7 +134,7 @@ def create_image(norm, cmap, data_lst, args):
     cb_axes = fig.add_axes([0.175, 0.2, 0.1, 0.65])
     cb_axes.set_axis_off()
     c_bar = plt.colorbar(mapper, ax=cb_axes, shrink=0.4)
-    define_ticks(c_bar, data_lst)
+    define_ticks(c_bar, data_lst, vmin, vmax)
 
     plt.savefig(args["output"], bbox_inches='tight', dpi=300)
     os.remove("_map.svg")
@@ -137,15 +146,21 @@ def main(args):
     data_lst = list(data.values())
     name_lst = [n.replace(" ", "_") + "_path" for n in data.keys()]
     cmap = plt.get_cmap('YlOrRd')
-    norm = matplotlib.colors.Normalize(vmin=min(data_lst), vmax=max(data_lst))
+    if not args["global"]:
+        vmin = min(data_lst)
+        vmax = max(data_lst)
+    else:
+        vmin, vmax = get_min_max_values(args)
+    norm = matplotlib.colors.Normalize(vmin=vmin, vmax=vmax)
     color = cmap(norm(data_lst))
     colorize_map(name_lst, color)
-    create_image(norm, cmap, data_lst, args)
+    create_image(norm, cmap, data_lst, args, vmin, vmax)
 
 
 def show_help():
     print("""Options:
-    -h | --help \t\t\tThis help
+    -h | --help \t\t\t This help
+    -g | --global \t\t\t Global Min/Max values of value [False by default]
     -y | --year <year> \t\t\t From 2003 to 2017 [2010 by default]
     -p | --period <period> \t\t From 0 to 11
     -s | --series <series name> \t [Total. Total de empresas. Total CNAE. Empresas. by default]
@@ -160,7 +175,8 @@ def parse_args(argv):
         "year": 2010,
         "period": 0,
         "series": 'Total. Total de empresas. Total CNAE. Empresas.',
-        "output": "output.png"
+        "output": "output.png",
+        "global": False
     }
     try:
         opts, args = getopt.getopt(argv, "hy:p:s:o:", ["year=", "period=", "series=", "output=", "help"])
@@ -179,6 +195,8 @@ def parse_args(argv):
             arguments["series"] = arg
         elif opt in ("-o", "--output"):
             arguments["output"] = arg
+        elif opt in ["-g", "--global"]:
+            arguments["global"] = True
     return arguments
 
 
