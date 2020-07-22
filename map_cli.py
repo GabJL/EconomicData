@@ -145,6 +145,8 @@ def create_image(norm, cmap, data_lst, args, vmin, vmax):
                 verticalalignment='top', bbox=props)
 
     plt.savefig(args["output"], bbox_inches='tight', dpi=300)
+    plt.cla()
+    plt.close(fig)
     os.remove("_map.svg")
     os.remove("_map.png")
 
