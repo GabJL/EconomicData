@@ -15,6 +15,8 @@ import numpy as np
 # Estas dos son la bue
 # sudo apt-get install libgeos-dev
 # pip3 install https://github.com/matplotlib/basemap/archive/v1.1.0.zip
+# En windows:
+# instalar desde https://www.lfd.uci.edu/~gohlke/pythonlibs/
 from mpl_toolkits.basemap import Basemap
 from matplotlib.patches import Polygon
 from matplotlib.collections import PatchCollection
@@ -22,7 +24,7 @@ from matplotlib.colors import Normalize
 
 # westlimit=-10.01; southlimit=35.07; eastlimit=4.88; northlimit=44.13
 
-fig, ax = plt.subplots(figsize=(10,20))
+fig, ax = plt.subplots(figsize=(10, 20))
 
 # resolution: The options are crude, low, intermediate, high or full.
 # projection: https://matplotlib.org/basemap/users/mapsetup.html
@@ -30,7 +32,7 @@ fig, ax = plt.subplots(figsize=(10,20))
 #  ‘llcrnr’ stands for ‘lower left corner’ and ‘urcrnr’ stands for upper right corner.
 
 
-m = Basemap(resolution='i', # c, l, i, h, f or None
+m = Basemap(resolution='i',  # c, l, i, h, f or None
             projection='merc',
             lat_0=39.6, lon_0=-2.565,
             llcrnrlon=-10.01, llcrnrlat=35.07, urcrnrlon=4.88, urcrnrlat=44.13)
@@ -38,25 +40,36 @@ m = Basemap(resolution='i', # c, l, i, h, f or None
 # Limites del mapaa
 m.drawmapboundary(fill_color='#46bcec')
 # Continente
-m.fillcontinents(color='#f2f2f2',lake_color='#46bcec')
+m.fillcontinents(color='#f2f2f2', lake_color='#46bcec')
 # Limites continente
 m.drawcoastlines()
 
-#http://centrodedescargas.cnig.es/CentroDescargas/catalogo.do?Serie=CAANE
+# http://centrodedescargas.cnig.es/CentroDescargas/catalogo.do?Serie=CAANE
 
-m.readshapefile('data/recintos_municipales_inspire_peninbal_etrs89/recintos_municipales_inspire_peninbal_etrs89', 'municipios')
-#m.readshapefile('data/recintos_provinciales_inspire_peninbal_etrs89/recintos_provinciales_inspire_peninbal_etrs89', 'provincias')
+# m.readshapefile('data/recintos_municipales_inspire_peninbal_etrs89/recintos_municipales_inspire_peninbal_etrs89', 'municipios')
+m.readshapefile('data/recintos_provinciales_inspire_peninbal_etrs89/recintos_provinciales_inspire_peninbal_etrs89',
+                'provincias')
 # m.readshapefile('data/recintos_autonomicas_inspire_peninbal_etrs89/recintos_autonomicas_inspire_peninbal_etrs89', 'autonomias')
-for area in m.municipios_info:
-	print(area['NAMEUNIT'])
+p = set()
+for area in m.provincias_info:
+    p.add(area['NAMEUNIT'])
 
-"""
+print(p)
+
+
+def set_value(city):
+    if city == "Málaga":
+        return 255
+    else:
+        return 0
+
+
 df_poly = pd.DataFrame({
-        'shapes': [Polygon(np.array(shape), True) for shape in m.municipios],
-        'area': [area['NAMEUNIT'] for area in m.municipios_info],
-        'count': [randint(0,50) for area in m.municipios_info]
-    })
-#df_poly = df_poly.merge(new_areas, on='municipios', how='left')
+    'shapes': [Polygon(np.array(shape), True) for shape in m.provincias_info],
+    'area': [area['NAMEUNIT'] for area in m.provincias_info],
+    'count': [set_value(area["NAMEUNIT"]) for area in m.provincias_info]
+})
+# df_poly = df_poly.merge(new_areas, on='municipios', how='left')
 
 cmap = plt.get_cmap('Oranges')
 pc = PatchCollection(df_poly.shapes, zorder=2)
@@ -71,4 +84,3 @@ mapper.set_array(df_poly['count'])
 plt.colorbar(mapper, shrink=0.4)
 
 plt.show()
-"""
