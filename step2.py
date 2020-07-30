@@ -152,9 +152,11 @@ def clustering_step_2(cluster_num, verb):
             if distance_clustering[j] == min_dist:
                 months_histogram[j] += 1
 
-    print(months_histogram)
+    if verb == 1:
+        for i, e in enumerate(months_histogram):
+            print(f"{months_considered[i+1]} months: {e}")
     features_number = months_considered[
-        len(months_histogram) - 1 - months_histogram[::-1].index(min(months_histogram))
+        len(months_histogram) - months_histogram[::-1].index(max(months_histogram))
     ]
    
     if verb == 1:
