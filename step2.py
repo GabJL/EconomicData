@@ -142,9 +142,9 @@ def clustering_step_2(cluster_num, verb):
             distance = distance_clusters(cluster_labels[0][:], cluster_labels[ind_config][:], cluster_num)
             # display the distance between the clustering
             if verb == 1:
-                print(f"The distance between a clustering with 180 features and the one with" 
-                      f"{12//months_considered[ind_config]} features considering {months_considered[ind_config]}"
-                      f"months) is: {distance}")
+                print(f"The distance between a clustering with 180 features and the one with " 
+                      f"{12//months_considered[ind_config] * 15} features considering {months_considered[ind_config]}"
+                      f" months) is: {distance}")
             # append the distance between the clustering of 180 features and the processed clustering
             distance_clustering.append(distance)
         min_dist = min(distance_clustering)
