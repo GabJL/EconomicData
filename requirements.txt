@@ -9,3 +9,5 @@ imageio
 pygifsicle
 sklearn
 kneed
+tensorflow
+keras
