@@ -129,11 +129,11 @@ def _train(df_reframed, scaler, date_times):
     rmse = np.sqrt(mse)
     print(f"RMSE: {rmse}")
     X_test = X_test.reshape((X_test.shape[0], n_interval * n_features))
-    inv_yhat = np.concatenate((yhat, X_test[:, -7:]), axis=1)
+    inv_yhat = np.concatenate((yhat, X_test[:, -1:]), axis=1)
     inv_yhat = scaler.inverse_transform(inv_yhat)
     inv_yhat = inv_yhat[:, 0]
     y_test = y_test.reshape((len(y_test), 1))
-    inv_y = np.concatenate((y_test, X_test[:, -7:]), axis=1)
+    inv_y = np.concatenate((y_test, X_test[:, -1:]), axis=1)
     inv_y = scaler.inverse_transform(inv_y)
     inv_y = inv_y[:, 0]
     """    test_date_times_desc = []
@@ -151,7 +151,7 @@ def _train(df_reframed, scaler, date_times):
             test_date_times_desc.append('')"""
     x_ticks_range = range(len(inv_y))
     x_axis_labels = test_date_times  # test_date_times_desc
-    plt.figure(figsize=(36, 7))
+    plt.figure(figsize=(16, 10))
     plt.plot(x_ticks_range, inv_y, label='actual')
     plt.plot(x_ticks_range, inv_yhat, label='predicted')
     plt.legend()
