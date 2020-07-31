@@ -1,21 +1,18 @@
 import getopt
-import logging
 import sys
 import numpy as np
 import pandas as pd
 import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
-# import matplotlib.animation as animation
-
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import LSTM
-# from keras.layers import Dense, LSTM, GRU
-# from keras.callbacks import ModelCheckpoint
+
 
 from cleanData import get_reduced_database, Data
 
@@ -123,7 +120,7 @@ def _train(df_reframed, scaler, date_times):
     batch_size = 32
     validation_split = 0.3
     history = model.fit(X_train, y_train, epochs=train_epochs, batch_size=batch_size, validation_split=validation_split,
-                        verbose=1, shuffle=False)
+                        verbose=0, shuffle=False)
     yhat = model.predict(X_test, batch_size=batch_size)
     mse = mean_squared_error(y_test, yhat)
     rmse = np.sqrt(mse)
@@ -221,6 +218,5 @@ def parse_args(argv):
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.ERROR)
     args = parse_args(sys.argv[1:])
     main(args)
