@@ -3,7 +3,6 @@ reportlab
 matplotlib
 sqlalchemy
 matplot
-numpy
 pandas
 imageio
 pygifsicle

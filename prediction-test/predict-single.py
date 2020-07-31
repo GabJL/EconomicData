@@ -1,8 +1,11 @@
 import getopt
+import logging
 import sys
 import numpy as np
 import pandas as pd
-# import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('agg')
+import matplotlib.pyplot as plt
 # import matplotlib.animation as animation
 
 from sklearn.preprocessing import MinMaxScaler
@@ -87,18 +90,18 @@ def modify_data(df):
     scaled_values = scaler.fit_transform(values)
     n_interval = 4
     df_reframed = series_to_supervised(scaled_values, n_interval, 1)
-    return df_reframed
+    return df_reframed, scaler
 
 
-def _train(df_reframed):
+def _train(df_reframed, scaler, date_times):
     n_train_records = int(len(df_reframed.values) * .7)
     train = df_reframed.values[:n_train_records, :]
     test = df_reframed.values[n_train_records:, :]
-    #test_date_times = date_times[n_train_records:]
     #print('Train shape:', train.shape)
     #print('Test shape:', test.shape)
     n_interval = 4
     n_features = 1
+    test_date_times = date_times[n_train_records+n_interval:]
     n_obs = n_interval*n_features
     X_train, y_train = train[:, :n_obs], train[:, -1]
     X_test, y_test = test[:, :n_obs], test[:, -1]
@@ -133,15 +136,36 @@ def _train(df_reframed):
     inv_y = np.concatenate((y_test, X_test[:, -7:]), axis=1)
     inv_y = scaler.inverse_transform(inv_y)
     inv_y = inv_y[:, 0]
-
+    """    test_date_times_desc = []
+    for dt in date_times:
+        cur = dt.split(' ')
+        cur_t = cur[1].split(':')
+        try:
+            if cur[1] == '0:00':
+                test_date_times_desc.append(cur[0])
+            elif cur_t[1] == '00':
+                test_date_times_desc.append(cur_t[0]+':'+cur_t[1])
+            else:
+                test_date_times_desc.append('')
+        except:
+            test_date_times_desc.append('')"""
+    x_ticks_range = range(len(inv_y))
+    x_axis_labels = test_date_times  # test_date_times_desc
+    plt.figure(figsize=(36, 7))
+    plt.plot(x_ticks_range, inv_y, label='actual')
+    plt.plot(x_ticks_range, inv_yhat, label='predicted')
+    plt.legend()
+    plt.xticks(x_ticks_range, x_axis_labels, rotation=90)
+    plt.ylabel('Serie')
+    plt.savefig("file.png")
 
 def main(args):
     df = get_data(args)
     print(df.head())
     date_times = df.index.values
-    df_reframed = modify_data(df)
+    df_reframed, scaler = modify_data(df)
     print(df_reframed.head())
-    _train(df_reframed)
+    _train(df_reframed, scaler, date_times)
 
 
 def show_help():
@@ -197,5 +221,6 @@ def parse_args(argv):
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.ERROR)
     args = parse_args(sys.argv[1:])
     main(args)
