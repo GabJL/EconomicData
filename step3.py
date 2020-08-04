@@ -3,7 +3,6 @@
 Created on Monday Aug 03 10:19:30 2020
 """
 
-
 # Used to connect and query the database
 import sqlite3
 # libs for array use
@@ -11,8 +10,7 @@ import numpy as np
 # lib containing the predefined K-MEANS in python
 from sklearn.cluster import KMeans
 # lib used to generate the possible permutation of N digits
-from itertools import permutations 
-
+from itertools import permutations
 
 
 # Given a vector reduces it, accumulating each n values in one (mean value)
@@ -20,9 +18,9 @@ def reduce_vector(v: list, n: int) -> list:
     v2 = []
     for i in range(0, len(v), n):
         mean = 0
-        for j in range(i, i+n):
+        for j in range(i, i + n):
             mean += v[j]
-        v2.append(mean/n)
+        v2.append(mean / n)
     return v2
 
 
@@ -61,10 +59,10 @@ def distance_clusters(cluster1, cluster2, cluster_num):
     return d
 
 
-def clustering_step_3(cluster_num, feature_num,N, verb):
+def clustering_step_3(cluster_num, feature_num, N, verb):
     print("***********************************************************************************************")
-    print("                      THE PROCESSING OF THE THIRD STEP OF CLUSTERING HAS STARTED")  
-    print("***********************************************************************************************")  
+    print("                      THE PROCESSING OF THE THIRD STEP OF CLUSTERING HAS STARTED")
+    print("***********************************************************************************************")
     # connect to the database
     conn = sqlite3.connect('db-reduced.db')
     c = conn.cursor()
@@ -78,18 +76,21 @@ def clustering_step_3(cluster_num, feature_num,N, verb):
     if verb == 1:
         print("***********************************************************************************************")
         print("IMPORTANT:")
-        print("  - The data displayed at the end of step III indicates the data series to be maintained in the 4th step.")
-        print("***********************************************************************************************")  
+        print("  - The data displayed at the end of step 3 indicates the data series to be maintained in the 4th step.")
+        print("***********************************************************************************************")
 
-    # ==================== PERFORM CLUSTERING ACCORDING TO # of clusters got from step 1 and the # of months got from step 2 ==================
+        # ====== PERFORM CLUSTERING ACCORDING TO # of clusters got from step 1 and the # of months got from step 2 =========
     i = 0  # index to count down the series having been processed ("i" will be only used for displaying information)
-    cluster_labels = np.zeros(52)  # will store the number of the cluster to whome each city belongs and this for every data series
-    series_desc = np.zeros(1) # stores the description of the data series (will be used to return the name of the data series that will be considered for clustering in step 4)
+    # will store the number of the cluster to whom each city belongs and this for every data series
+    cluster_labels = np.zeros(52)
+    # stores the description of the data series (will be used to return the name of the data series that will be
+    # considered for clustering in step 4)
+    series_desc = np.zeros(1)
     for tuple1 in data_ser:  # browse series
         i = i + 1  # increment the index of the serie each time one is browsed
-        if verb == 1: # display info about the data series being processed
+        if verb == 1:  # display info about the data series being processed
             print("Information n° %i being processed: " % i, tuple1[0])
-        data_x_months = np.zeros(15*12//feature_num)  # stores the sample data that will undergo the clustering
+        data_x_months = np.zeros(15 * 12 // feature_num)  # stores the sample data that will undergo the clustering
         for tuple2 in data_loc:  # browse locations
             # print(tuple2[0])  # uncomment to know which city you are browsing
             # ====== RETRIEVE THE RECORDS OF THE GIVEN SERIE FOR THE PROCESSED CITY  ===============================
@@ -116,62 +117,70 @@ def clustering_step_3(cluster_num, feature_num,N, verb):
         # print(clust.labels_) # uncomment to observe the labels of the clusters to which belong each city
         # print(clust.inertia_) # uncomment to observe the value of dispertion: sum of squared distances
         cluster_labels = np.vstack((cluster_labels, clust.labels_))  # append the result of the clustering
-        num_series = i # stores the number of series contained in the database
-        series_desc = np.append(series_desc,tuple1) # append the name of the data series being processed
+        num_series = i  # stores the number of series contained in the database
+        series_desc = np.append(series_desc, tuple1)  # append the name of the data series being processed
     # ======== COMPUTE DISTANCE BETWEEN N!xN PAIRS OF DATA SERIES =========
-    series_desc = np.delete(series_desc,0,0) # delete the first unuseful zero
+    series_desc = np.delete(series_desc, 0, 0)  # delete the first unuseful zero
     cluster_labels = np.delete(cluster_labels, 0, 0)  # delete the unuseful set of zeros at the begining
     # print(len(cluster_labels)) # uncomment to know the number of feature configurations considered
     # print(len(cluster_labels[0])) # uncomment to know the number of cities considered
     # print(cluster_labels) # uncomment to print the result of clustering in each of the 6 feature configurations    
     distance_clustering = []  # will contain the distances between the clusteering of each pair of data series
-    pairs_index = np.zeros(2); # will contain the index of each pair of data series
+    pairs_index = np.zeros(2)  # will contain the index of each pair of data series
     # compute the distance between the clustering of each pair of data series
-    for i in range (0,num_series):
-        for j in range (i+1,num_series):
+    for i in range(0, num_series):
+        for j in range(i + 1, num_series):
             # compute the distance between the data series of each pair
-            distance = distance_clusters(cluster_labels[i][:], cluster_labels[j][:],cluster_num)
+            distance = distance_clusters(cluster_labels[i][:], cluster_labels[j][:], cluster_num)
             # append the distance of the processed pairs of data series to the list of previously-computed distances
-            distance_clustering.append(distance) 
+            distance_clustering.append(distance)
             # add the index of the processed pair of data series
-            pairs_index = np.vstack((pairs_index,[i,j]))
+            pairs_index = np.vstack((pairs_index, [i, j]))
             # display the distance between the clustering
             if verb == 1:
-                print("The distance between the data series", (i+1), "and ", (j+1), "is:", distance)
-    pairs_index = np.delete(pairs_index,0,0) # delete the first line of uneuseful zeros 
-    distance_clustering = np.array(distance_clustering) # convert the array into numpy array so that .argsort works (see next line)
+                print("The distance between the data series", (i + 1), "and ", (j + 1), "is:", distance)
+    pairs_index = np.delete(pairs_index, 0, 0)  # delete the first line of uneuseful zeros
+    # convert the array into numpy array so that .argsort works (see next line)
+    distance_clustering = np.array(distance_clustering)
     # extract the pair of series having a distance <= N
-    indx  = []
-    for i in range(0,len(distance_clustering)):
+    indx = []
+    for i in range(0, len(distance_clustering)):
         if distance_clustering[i] <= N:
-           indx = np.append(indx,i) 
-    if indx != []: # to avoid the case where no pair of series has a distance <= N
-        LS = np.zeros(2)    
-        for i in range (0,len(indx)):
-            LS = np.vstack((LS,pairs_index[int(indx[i])][:]))
-        LS = np.delete(LS,0,0) # delete the line of uneuseful zeros
-    # extract the number of times in which each series appears in the LS extracted pairs
+            indx = np.append(indx, i)
+
     data_series_list = np.zeros(1)
-    if indx != []: # to avoid the case where no pair of series has a distance <= N    
+    if indx is not []:  # to avoid the case where no pair of series has a distance <= N
+        LS = np.zeros(2)
+        for i in range(0, len(indx)):
+            LS = np.vstack((LS, pairs_index[int(indx[i])][:]))
+        LS = np.delete(LS, 0, 0)  # delete the line of uneuseful zeros
+        series_index = np.unique(LS)
+        for i in range(num_series):
+            if i not in series_index:
+                data_series_list = np.vstack((data_series_list, series_desc[i]))
+        if verb == 1:
+            print(f"{len(data_series_list) - 1} data series automatically added: {data_series_list[1:]}")
+        # extract the number of times in which each series appears in the LS extracted pairs
         while LS != []:
-            series_index, occurence = np.unique(LS, return_counts = True)
+            series_index, occurence = np.unique(LS, return_counts=True)
             indx_serie_maintain = (-occurence).argsort()[:1]
             # append the name of the data series to be maintained in step 4 of clustering
-            data_series_list = np.vstack((data_series_list,series_desc[int (series_index[indx_serie_maintain[0]])]))
+            data_series_list = np.vstack((data_series_list, series_desc[int(series_index[indx_serie_maintain[0]])]))
             # delete the pairs of series that includes the series that just has been maintained
-            LS_temp = np.zeros(2) # a temporary list of series that will consistute LS for the next iteration   
-            for i in range(0,len(LS)):
-                if (LS[i][0] != series_index[indx_serie_maintain[0]]) and (LS[i][1] != series_index[indx_serie_maintain[0]]):
-                    LS_temp = np.vstack((LS_temp,LS[i][:]))
-            LS_temp = np.delete(LS_temp,0,0)
+            LS_temp = np.zeros(2)  # a temporary list of series that will consisted LS for the next iteration
+            for i in range(0, len(LS)):
+                if (LS[i][0] != series_index[indx_serie_maintain[0]]) and (
+                        LS[i][1] != series_index[indx_serie_maintain[0]]):
+                    LS_temp = np.vstack((LS_temp, LS[i][:]))
+            LS_temp = np.delete(LS_temp, 0, 0)
             LS = LS_temp
-    data_series_list = np.delete(data_series_list,0,0) # delete the first cell of unuseful zero
+    data_series_list = np.delete(data_series_list, 0, 0)  # delete the first cell of unuseful zero
     # display the final result of the execution            
     print("***********************************************************************************************")
-    print("The data series to be maintained during the 4th step are: \n", data_series_list)  
+    print(f"The {len(data_series_list)} data series to be maintained during the 4th step are: \n", data_series_list)
     print("***********************************************************************************************")
-    
+
     print("***********************************************************************************************")
-    print("                      THE PROCESSING OF THE THIRD STEP OF CLUSTERING HAS FINISHED")  
+    print("                      THE PROCESSING OF THE THIRD STEP OF CLUSTERING HAS FINISHED")
     print("***********************************************************************************************")
     return data_series_list
