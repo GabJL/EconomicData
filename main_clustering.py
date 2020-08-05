@@ -30,6 +30,6 @@ num_features = 4
 # processed to extract the list of series to be maintained during 4th step.
 # ========================================================================
 lb_distance = 26  # 25% (52*0.25*2) of the locations can be classified in different cluster
-list_data_series = clustering_step_3(num_elbows,num_features,lb_distance,verbose_mode_3)
-# execute the 4th step of clustering: perfom the final step
-clust = clustering_step_4(num_elbows,num_features,list_data_series,verbose_mode_4)
+list_data_series = clustering_step_3(num_elbows, num_features, lb_distance, verbose_mode_3)
+# execute the 4th step of clustering: perform the final step
+clust = clustering_step_4(num_elbows, num_features, list_data_series, verbose_mode_4)

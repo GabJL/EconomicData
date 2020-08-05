@@ -12,7 +12,6 @@ import numpy as np
 from sklearn.cluster import KMeans
 
 
-
 # Given a vector reduces it, accumulating each "n" values in one (mean value)
 def reduce_vector(v: list, n: int) -> list:
     v2 = []
@@ -34,7 +33,6 @@ def get_sets(cluster, num):
             )
         )
     return s
-
 
 
 def clustering_step_4(cluster_num, feature_num, series, verb):
@@ -60,7 +58,7 @@ def clustering_step_4(cluster_num, feature_num, series, verb):
         print("")
     # ====== PERFORM CLUSTERING ACCORDING TO # of clusters got from step 1 and the # of months got from step 2 =========
     i = 0  # index to count down the series having been processed ("i" will be only used for displaying information)
-    cluster_labels = [] # will store the cities' index that belong to each cluster
+    data = {} # map city -> all data
     for tuple1 in series:  # browse series selected from step 3
         # print(tuple1[0]) # uncomment to know which data series we is being processed
         i = i + 1  # increment the index of the serie each time one is browsed
@@ -83,6 +81,10 @@ def clustering_step_4(cluster_num, feature_num, series, verb):
                 data_mat = np.append(data_mat, tuple3[5])  # append the records
             # ===== build-up the matrix of records that will undergo clustering, lines: cities, columns:
             data_mat = reduce_vector(data_mat, feature_num)
+            if tuple2[0][:] in data:
+                data[tuple2[0][:]].extend(data_mat)
+            else:
+                data[tuple2[0][:]] = data_mat
             # ==== append the records of the cities =========
             data_x_months = np.vstack((data_x_months, data_mat))
         # ====================== PERFORM THE K-MEANS CLUSTERING ========================
@@ -106,6 +108,27 @@ def clustering_step_4(cluster_num, feature_num, series, verb):
                 print(data_loc[city][0])
             print("")
             print("")
+
+    # Clustering considering all series together
+    print("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=")
+    print("Using all the series together")
+    print("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=")
+    print("")
+    print("")
+    data_np = np.array(list(data.values()))
+    data_loc = list(data.keys())
+    clust = KMeans(n_clusters=cluster_num, init='k-means++', n_init=10, max_iter=300, tol=0.0001, verbose=0,
+                   random_state=None, copy_x=True, algorithm='auto').fit(data_np)
+    cluster_labels = get_sets(clust.labels_, cluster_num)
+    # display the clusters and the cities that belongs to each cluster
+    for ind in range(0, cluster_num):
+        print("===================================================================")
+        print("The cities that belong to group (i.e. cluster) n° %i are:" % (ind + 1))
+        print("===================================================================")
+        for city in cluster_labels[ind]:
+            print(data_loc[city])
+        print("")
+        print("")
 
     print("***********************************************************************************************")
     print("                      THE PROCESSING OF THE FOURTH STEP OF CLUSTERING HAS FINISHED")
