@@ -1,0 +1,11 @@
+In the folder "Results":
+- Execue the file "formatt.py". Once the execution ends, you will get an Excel file that contains the scores of the cGAs variants
+
+In the folder "Fitness":
+- Execute the file "statistics.py". Once the execution ends, you will get an Excel file that contains the fitness value at each iteration.
+- Execute the file "graphics.py". Once the execution ends, you will get an ".eps" file that contains the fitness value value evolution through the iterations.
+
+In the folder Map:
+- Execute the script "map.py". Once the execution ends, you will get two ".eps" images that contains a map of Spain with the profiles of the cities.
+
+- This is a general "HOW TO". More details can be found within the ".py" scripts.
